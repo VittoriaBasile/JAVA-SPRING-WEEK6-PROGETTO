@@ -27,8 +27,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		// 0. Questo metodo verrà invocato per ogni request
-		// 1. Prima di tutto dovrò estrarre il token dall'Authorization Header
+
 		String authHeader = request.getHeader("Authorization");
 
 		if (authHeader == null || !authHeader.startsWith("Bearer "))
@@ -36,17 +35,11 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
 		String accessToken = authHeader.substring(7);
 
-		// 2. Verifico che il token non sia stato nè manipolato nè sia scaduto
 		JWTTools.isTokenValid(accessToken);
 
-		// 3. Se OK
-
-		// 3.0 Estraggo l'email dal token e cerco l'utente
 		String username = JWTTools.extractSubject(accessToken);
 		try {
 			User user = usersService.findByUsername(username);
-
-			// 3.1 Aggiungo l'utente al SecurityContextHolder
 
 			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null,
 					user.getAuthorities());
@@ -54,16 +47,12 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 
-			// 3.2 puoi procedere al prossimo blocco della filterChain
 			filterChain.doFilter(request, response);
 		} catch (NotFoundException e) {
 			throw new NotFoundException("richiesta non valida");
 		}
 
-		// 4. Se non OK -> 401 ("Per favore effettua di nuovo il login")
 	}
-
-	// Per evitare che il filtro venga eseguito per OGNI richiesta
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {

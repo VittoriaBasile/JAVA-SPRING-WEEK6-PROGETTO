@@ -15,8 +15,6 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JWTTools {
 
-	// @Value("${spring.application.jwt.secret}") non funziona se le variabili sono
-	// statiche
 	private static String secret;
 	private static int expiration;
 
@@ -50,7 +48,7 @@ public class JWTTools {
 		}
 	}
 
-	static public String extractSubject(String token) { // Nel nostro caso il subject è l'email dell'utente
+	static public String extractSubject(String token) {
 		return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(secret.getBytes())).build().parseClaimsJws(token)
 				.getBody().getSubject();
 	}

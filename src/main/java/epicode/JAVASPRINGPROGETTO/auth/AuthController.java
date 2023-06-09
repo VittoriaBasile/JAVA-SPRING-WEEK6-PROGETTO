@@ -33,15 +33,12 @@ public class AuthController {
 	public ResponseEntity<AuthenticationSuccessfullPayload> login(@RequestBody UserLoginPayload body)
 			throws NotFoundException {
 
-		// 1. Verificare che l'email dell'utente sia presente nel db
 		User user = usersService.findByUsername(body.getUsername());
-		// 2. In caso affermativo devo verificare che la pw corrisponda a quella trovata
-		// nel db
+
 		if (!body.getPassword().matches(user.getPassword()))
 			throw new UnauthorizedException("Credenziali non valide");
-		// 3. Se tutto ok --> genero
+
 		String token = JWTTools.createToken(user);
-		// 4. Altrimenti --> 401 ("Credenziali non valide")
 
 		return new ResponseEntity<>(new AuthenticationSuccessfullPayload(token), HttpStatus.OK);
 	}
